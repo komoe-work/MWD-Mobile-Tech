@@ -1,0 +1,127 @@
+import express from "express";
+import path from "path";
+import { createServer as createViteServer } from "vite";
+import multer from "multer";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+async function startServer() {
+  const app = express();
+  const PORT = 3000;
+
+  app.use(express.json());
+
+  // In-memory data store for the demo
+  let products = [
+    {
+      id: '1',
+      name: 'Redmi Note 13 Pro',
+      specs: '8GB RAM + 256GB Storage',
+      price: 299,
+      brand: 'Redmi',
+      image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: '2',
+      name: 'Meizu 21',
+      specs: '12GB RAM + 512GB Storage',
+      price: 499,
+      brand: 'Meizu',
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: '3',
+      name: 'OPPO Reno 11 5G',
+      specs: '8GB RAM + 256GB Storage',
+      price: 399,
+      brand: 'OPPO',
+      image: 'https://images.unsplash.com/photo-1610940882244-5966236ca6d5?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: '4',
+      name: 'Redmi Note 13',
+      specs: '6GB RAM + 128GB Storage',
+      price: 199,
+      brand: 'Redmi',
+      image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: '5',
+      name: 'Meizu 20 Infinity',
+      specs: '16GB RAM + 1TB Storage',
+      price: 749,
+      brand: 'Meizu',
+      image: 'https://images.unsplash.com/photo-1592890288564-76628a30a657?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      id: '6',
+      name: 'OPPO A78',
+      specs: '8GB RAM + 128GB Storage',
+      price: 229,
+      brand: 'OPPO',
+      image: 'https://images.unsplash.com/photo-1556656793-062ff98782fe?auto=format&fit=crop&q=80&w=400',
+    },
+  ];
+
+  // Configure Multer for image uploads
+  // Note: In this environment, we'll store images as base64 in the memory store 
+  // or just use the preview URL for simplicity since we don't have persistent disk storage.
+  const upload = multer({ storage: multer.memoryStorage() });
+
+  // API Routes
+  app.get("/api/phone", (req, res) => {
+    res.json(products);
+  });
+
+  app.post("/api/admin/inventory", upload.single("image"), (req, res) => {
+    const { name, brand, price, specs } = req.body;
+    let imageUrl = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400"; // Fallback
+
+    if (req.file) {
+      // For the demo, convert to base64
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      imageUrl = `data:${req.file.mimetype};base64,${b64}`;
+    }
+
+    const newProduct = {
+      id: Date.now().toString(),
+      name,
+      brand,
+      price: parseFloat(price),
+      specs: specs || "Latest Generation",
+      image: imageUrl,
+    };
+
+    products.unshift(newProduct);
+    res.status(201).json(newProduct);
+  });
+
+  app.delete("/api/phone/:id", (req, res) => {
+    const { id } = req.params;
+    products = products.filter(p => p.id !== id);
+    res.status(200).json({ message: "Product deleted" });
+  });
+
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  }
+
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+startServer();

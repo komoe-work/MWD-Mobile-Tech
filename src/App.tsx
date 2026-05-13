@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ShoppingCart, 
   X, 
@@ -16,9 +16,12 @@ import {
   MapPin,
   User,
   PhoneCall,
-  CheckCircle2
+  CheckCircle2,
+  Loader2,
+  ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import AdminDashboard from './components/AdminDashboard';
 
 // --- Types ---
 
@@ -97,6 +100,11 @@ const PRODUCTS: Product[] = [
 // --- Components ---
 
 export default function App() {
+  const [view, setView] = useState<'store' | 'admin'>(
+    window.location.pathname === '/admin' ? 'admin' : 'store'
+  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -106,6 +114,7 @@ export default function App() {
 
   // Load cart from localStorage
   useEffect(() => {
+    fetchProducts();
     const savedCart = localStorage.getItem('mobile_mart_cart');
     if (savedCart) {
       try {
@@ -120,6 +129,25 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('mobile_mart_cart', JSON.stringify(cart));
   }, [cart]);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/phone');
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (view === 'store') {
+      fetchProducts();
+    }
+  }, [view]);
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -200,6 +228,10 @@ export default function App() {
     }
   };
 
+  if (view === 'admin') {
+    return <AdminDashboard onBack={() => setView('store')} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col pt-16 pb-20">
       {/* Header */}
@@ -261,42 +293,55 @@ export default function App() {
       </section>
 
       {/* Product Grid */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-        {PRODUCTS.map((product, index) => (
-          <motion.div 
-            key={product.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col"
-            id={`product-${product.id}`}
-          >
-            <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 mb-6 flex items-center justify-center relative">
-              <img 
-                src={product.image} 
-                alt={product.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-100">
-                {product.brand}
-              </div>
-            </div>
-            <div className="flex-1 space-y-1 mb-6">
-              <h3 className="font-display font-bold text-xl leading-tight">{product.name}</h3>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{product.specs}</p>
-            </div>
-            <div className="flex items-center justify-between mt-auto">
-              <span className="text-2xl font-bold tracking-tight">${product.price}.00</span>
-              <button 
-                onClick={() => addToCart(product)}
-                className="px-6 py-2.5 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
+      <main className="flex-1 w-full max-w-6xl mx-auto px-8 mb-20">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-4">
+            <Loader2 size={40} className="animate-spin stroke-1" />
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Synchronizing Inventory...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-20 text-slate-400">
+             <p className="text-xs font-bold uppercase tracking-widest">Inventory is currently depleted.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product, index) => (
+              <motion.div 
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col"
+                id={`product-${product.id}`}
               >
-                Add to Cart
-              </button>
-            </div>
-          </motion.div>
-        ))}
+                <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 mb-6 flex items-center justify-center relative">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-100">
+                    {product.brand}
+                  </div>
+                </div>
+                <div className="flex-1 space-y-1 mb-6">
+                  <h3 className="font-display font-bold text-xl leading-tight">{product.name}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{product.specs}</p>
+                </div>
+                <div className="flex items-center justify-between mt-auto">
+                  <span className="text-2xl font-bold tracking-tight">${product.price}.00</span>
+                  <button 
+                    onClick={() => addToCart(product)}
+                    className="px-6 py-2.5 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* Shopping Cart Drawer */}
@@ -501,7 +546,12 @@ export default function App() {
           <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <a href="#" className="hover:text-black transition-colors">Store</a>
             <a href="#" className="hover:text-black transition-colors">Inventory</a>
-            <a href="#" className="hover:text-black transition-colors">Orders</a>
+            <button 
+              onClick={() => setView('admin')}
+              className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"
+            >
+              <ShieldCheck size={12} /> Admin
+            </button>
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">&copy; 2024 MWD MOBILE INC. ALL RIGHTS RESERVED.</p>
         </div>
