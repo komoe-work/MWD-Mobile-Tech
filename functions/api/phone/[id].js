@@ -16,9 +16,9 @@ export async function onRequestPut(context) {
     const brand = formData.get('brand');
     const model = formData.get('name');
     const price = formData.get('price');
+    const specs = formData.get('specs'); // Now grabs specs
     const imageFile = formData.get('image');
 
-    // If a new image was uploaded, update R2 and D1
     if (imageFile && imageFile.name) {
       const fileName = `${Date.now()}-${imageFile.name}`;
       
@@ -29,14 +29,13 @@ export async function onRequestPut(context) {
       const publicUrl = `https://pub-1bd14d351a7a42eeae69dcb69d806c00.r2.dev/${fileName}`;
 
       await context.env.DB.prepare(
-        "UPDATE inventory SET brand = ?, model = ?, price = ?, image_url = ? WHERE id = ?"
-      ).bind(brand, model, price, publicUrl, id).run();
+        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, image_url = ? WHERE id = ?"
+      ).bind(brand, model, price, specs, publicUrl, id).run();
 
     } else {
-      // If no new image, just update the text details
       await context.env.DB.prepare(
-        "UPDATE inventory SET brand = ?, model = ?, price = ? WHERE id = ?"
-      ).bind(brand, model, price, id).run();
+        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ? WHERE id = ?"
+      ).bind(brand, model, price, specs, id).run();
     }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" }});
