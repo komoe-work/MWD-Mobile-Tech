@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Trash2, 
+  Pencil,
   Image as ImageIcon, 
   ArrowLeft,
   Loader2,
@@ -31,6 +32,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -66,6 +68,26 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     }
   };
 
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id);
+    setFormData({
+      name: product.name,
+      brand: product.brand,
+      price: product.price.toString(),
+      specs: product.specs
+    });
+    setPreviewUrl(product.image);
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setFormData({ name: '', brand: '', price: '', specs: '' });
+    setImageFile(null);
+    setPreviewUrl(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -81,22 +103,26 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     }
 
     try {
-      const res = await fetch('/api/admin/inventory', {
-        method: 'POST',
+      const url = editingId ? `/api/phone/${editingId}` : '/api/admin/inventory';
+      const method = editingId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         body: data
       });
 
       if (res.ok) {
-        setStatus({ type: 'success', msg: 'Product added successfully!' });
+        setStatus({ type: 'success', msg: editingId ? 'Product updated successfully!' : 'Product added successfully!' });
         setFormData({ name: '', brand: '', price: '', specs: '' });
         setImageFile(null);
         setPreviewUrl(null);
+        setEditingId(null);
         fetchProducts();
       } else {
-        throw new Error('Failed to add product');
+        throw new Error('Failed to save product');
       }
     } catch (err) {
-      setStatus({ type: 'error', msg: 'Failed to add product. Please try again.' });
+      setStatus({ type: 'error', msg: 'Failed to save product. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -150,9 +176,20 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Form Column */}
         <section className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm sticky top-8">
-          <h2 className="font-display font-bold text-xl mb-8 flex items-center gap-2">
-           <Plus size={20} className="text-blue-600" /> New Technical Asset
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display font-bold text-xl flex items-center gap-2">
+              {editingId ? <Pencil size={20} className="text-blue-600" /> : <Plus size={20} className="text-blue-600" />}
+              {editingId ? 'Edit Asset' : 'New Technical Asset'}
+            </h2>
+            {editingId && (
+              <button 
+                onClick={cancelEdit}
+                className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -249,7 +286,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
               {isSubmitting ? (
                  <Loader2 size={20} className="animate-spin" />
               ) : (
-                'Commit to Catalog'
+                editingId ? 'Update Catalog' : 'Commit to Catalog'
               )}
             </button>
           </form>
@@ -311,12 +348,20 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                            <span className="font-bold text-slate-900">${product.price}.00</span>
                         </td>
                         <td className="px-8 py-5 text-right">
-                          <button 
-                            onClick={() => handleDelete(product.id)}
-                            className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => handleEdit(product)}
+                              className="p-3 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+                            >
+                              <Pencil size={18} />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(product.id)}
+                              className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

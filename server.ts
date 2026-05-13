@@ -104,6 +104,33 @@ async function startServer() {
     res.status(200).json({ message: "Product deleted" });
   });
 
+  app.put("/api/phone/:id", upload.single("image"), (req, res) => {
+    const { id } = req.params;
+    const { name, brand, price, specs } = req.body;
+    const index = products.findIndex(p => p.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    let imageUrl = products[index].image;
+    if (req.file) {
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      imageUrl = `data:${req.file.mimetype};base64,${b64}`;
+    }
+
+    products[index] = {
+      ...products[index],
+      name: name || products[index].name,
+      brand: brand || products[index].brand,
+      price: price ? parseFloat(price) : products[index].price,
+      specs: specs || products[index].specs,
+      image: imageUrl
+    };
+
+    res.json(products[index]);
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
