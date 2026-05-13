@@ -1,29 +1,24 @@
 export async function onRequestDelete(context) {
   try {
     const id = context.params.id; 
-    
-    await context.env.DB.prepare(
-      "DELETE FROM inventory WHERE id = ?"
-    ).bind(id).run();
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { "Content-Type": "application/json" }
-    });
+    await context.env.DB.prepare("DELETE FROM inventory WHERE id = ?").bind(id).run();
+    return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" }});
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
+
 export async function onRequestPut(context) {
   try {
     const id = context.params.id;
     const formData = await context.request.formData();
     
     const brand = formData.get('brand');
-    const model = formData.get('name'); // Matches frontend 'name'
+    const model = formData.get('name');
     const price = formData.get('price');
     const imageFile = formData.get('image');
 
-    // If you uploaded a new image, update R2 and D1
+    // If a new image was uploaded, update R2 and D1
     if (imageFile && imageFile.name) {
       const fileName = `${Date.now()}-${imageFile.name}`;
       
@@ -44,9 +39,7 @@ export async function onRequestPut(context) {
       ).bind(brand, model, price, id).run();
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { "Content-Type": "application/json" }
-    });
+    return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" }});
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
