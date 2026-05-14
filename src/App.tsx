@@ -131,6 +131,8 @@ const TRANSLATIONS = {
     placeholder_phone: "၀၉ ...",
     placeholder_address: "လမ်း၊ အိမ်အမှတ်၊ မြို့နယ်",
     submit_order: "အော်ဒါတင်မည်",
+    payment_instructions: "စုစုပေါင်း ကျသင့်ငွေကို KBZPay / WavePay: 09-XXXX-XXXX (Name: U Mg Mg) သို့ လွှဲပြောင်းပေးပါ။",
+    upload_screenshot: "ငွေလွှဲပြေစာ တင်ပေးရန် (မဖြစ်မနေ)",
     out_of_stock: "ပစ္စည်းပြတ်နေပါသည်",
     all_rights_reserved: "မူပိုင်ခွင့် အားလုံးကို လက်ဝယ်ရှိပါသည်။",
   },
@@ -161,6 +163,8 @@ const TRANSLATIONS = {
     placeholder_phone: "+1 (555) 000-0000",
     placeholder_address: "Street Address, Build, Apartment",
     submit_order: "Submit Order",
+    payment_instructions: "Please transfer the total amount to KBZPay / WavePay: 09-XXXX-XXXX (Name: U Mg Mg)",
+    upload_screenshot: "Upload Payment Screenshot (Required)",
     out_of_stock: "Out of Stock",
     all_rights_reserved: "ALL RIGHTS RESERVED.",
   }
@@ -184,6 +188,7 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [form, setForm] = useState<OrderForm>({ name: '', phone: '', address: '' });
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
 
   // Load cart from localStorage
   useEffect(() => {
@@ -262,42 +267,34 @@ export default function App() {
     setIsSubmitting(true);
     setOrderStatus('idle');
 
-    // Replace with your Google Apps Script Web App URL
-    const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-
-    const orderData = {
-      date: new Date().toLocaleString(),
-      ...form,
-      items: cart.map(item => `${item.name} (${item.quantity}x)`).join(', '),
-      total: totalPrice,
-    };
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('phone', form.phone);
+    formData.append('address', form.address);
+    formData.append('items', cart.map(item => `${item.name} (${item.quantity}x)`).join(', '));
+    formData.append('total', totalPrice.toString());
+    if (screenshotFile) {
+      formData.append('payment_screenshot', screenshotFile);
+    }
 
     try {
-      // In a real scenario, this would be a POST request.
-      // Since it's a demo, we'll simulate the call and show instructions.
-      console.log('Sending order to GAS:', orderData);
-      
-      // If you are testing, you can uncomment this:
-      /*
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
+      const response = await fetch('/api/checkout', {
         method: 'POST',
-        mode: 'no-cors', // Apps Script usually requires no-cors for simple web app posts
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
+        body: formData,
       });
-      */
 
-      // Simulating success
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setOrderStatus('success');
-      setCart([]);
-      setForm({ name: '', phone: '', address: '' });
-      setTimeout(() => {
-        setIsCheckoutOpen(false);
-        setOrderStatus('idle');
-      }, 3000);
+      if (response.ok) {
+        setOrderStatus('success');
+        setCart([]);
+        setForm({ name: '', phone: '', address: '' });
+        setScreenshotFile(null);
+        setTimeout(() => {
+          setIsCheckoutOpen(false);
+          setOrderStatus('idle');
+        }, 3000);
+      } else {
+        throw new Error('Order submission failed');
+      }
     } catch (error) {
       console.error('Order submission failed', error);
       setOrderStatus('error');
@@ -622,9 +619,27 @@ export default function App() {
                     </button>
                   </div>
 
-                  <form onSubmit={handleSubmitOrder} className="space-y-6">
-                    <div className="space-y-2">
-                      <label htmlFor="customer-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.full_name}</label>
+                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl mb-6">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Payment Instructions</p>
+                      <p className="text-xs font-bold text-blue-900 leading-relaxed">
+                        {t.payment_instructions}
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSubmitOrder} className="space-y-6">
+                      <div className="space-y-2">
+                        <label htmlFor="payment-screenshot" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.upload_screenshot}</label>
+                        <input 
+                          required
+                          id="payment-screenshot"
+                          type="file" 
+                          accept="image/*"
+                          onChange={e => setScreenshotFile(e.target.files?.[0] || null)}
+                          className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="customer-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.full_name}</label>
                       <input 
                         required
                         id="customer-name"
