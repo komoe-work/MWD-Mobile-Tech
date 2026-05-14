@@ -27,6 +27,8 @@ interface POSProduct {
   image: string;
   brand: string;
   stock_quantity: number;
+  imei_list?: string;
+  additional_info?: string;
 }
 
 interface CartItem extends POSProduct {
@@ -116,6 +118,9 @@ export default function POSSystem({ onBack }: POSSystemProps) {
 
       if (res.ok) {
         setShowSuccess(true);
+        // Trigger print
+        setTimeout(() => window.print(), 500);
+        
         setTimeout(() => {
           setShowSuccess(false);
           setCart([]);
@@ -136,7 +141,8 @@ export default function POSSystem({ onBack }: POSSystemProps) {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
+    <>
+      <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans print:hidden">
       {/* Left Column: Inventory Grid */}
       <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200">
         <header className="p-6 bg-white border-b border-slate-200 flex items-center gap-6">
@@ -407,6 +413,77 @@ export default function POSSystem({ onBack }: POSSystemProps) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+
+      {/* Thermal Receipt (Print Only) */}
+      <div className="hidden print:block w-[80mm] text-black bg-white p-4 font-mono text-[10px] leading-tight">
+        <div className="text-center space-y-1 mb-4">
+          <h1 className="text-sm font-bold uppercase">MWD MOBILE TECH</h1>
+          <p>No. 123, Main Street, Yangon</p>
+          <p>Tel: 09-123456789</p>
+        </div>
+
+        <div className="space-y-1 mb-4">
+          <div className="flex justify-between">
+            <span>Date:</span>
+            <span>{new Date().toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Receipt:</span>
+            <span>#{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+          </div>
+          {customer.name && (
+            <div className="flex justify-between">
+              <span>Customer:</span>
+              <span className="truncate max-w-[150px]">{customer.name}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-dashed border-black my-2"></div>
+        
+        <div className="space-y-2">
+          {cart.map((item, idx) => (
+            <div key={idx}>
+              <div className="flex justify-between">
+                <span className="flex-1 pr-2">{item.quantity} x {item.name}</span>
+                <span>{formatPrice(item.price * item.quantity)}</span>
+              </div>
+              {item.imei_list && (
+                <div className="text-[8px] pl-4 italic">IMEI: {item.imei_list}</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-dashed border-black my-2"></div>
+
+        <div className="space-y-1">
+          <div className="flex justify-between">
+            <span>Subtotal:</span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          {discount > 0 && (
+            <div className="flex justify-between">
+              <span>Discount:</span>
+              <span>-{formatPrice(discount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between font-bold text-sm pt-1">
+            <span>TOTAL:</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <span className="font-bold">Payment: {paymentMethod}</span>
+        </div>
+
+        <div className="text-center mt-8 space-y-1 pt-4 border-t border-dashed border-black">
+          <p>Thank you for your purchase!</p>
+          <p>No returns without receipt.</p>
+        </div>
+      </div>
+    </>
   );
 }
