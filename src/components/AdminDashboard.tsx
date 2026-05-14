@@ -193,9 +193,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Brand Name</label>
+              <label htmlFor="brand-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Brand Name</label>
               <input 
                 required
+                id="brand-name"
                 type="text"
                 placeholder="e.g. Redmi, Meizu"
                 value={formData.brand}
@@ -205,9 +206,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Model Name</label>
+              <label htmlFor="model-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Model Name</label>
               <input 
                 required
+                id="model-name"
                 type="text"
                 placeholder="e.g. Note 13 Pro"
                 value={formData.name}
@@ -218,9 +220,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Price ($)</label>
+                <label htmlFor="product-price" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Price ($)</label>
                 <input 
                   required
+                  id="product-price"
                   type="number"
                   placeholder="299"
                   value={formData.price}
@@ -229,8 +232,9 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Specs</label>
+                <label htmlFor="product-specs" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Specs</label>
                 <input 
+                  id="product-specs"
                   type="text"
                   placeholder="12GB / 256GB"
                   value={formData.specs}
@@ -241,12 +245,12 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 block">Product Visual</label>
+              <label htmlFor="product-visual" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 block">Product Visual</label>
               <div 
                 className={`relative h-48 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 overflow-hidden ${previewUrl ? 'border-blue-500 bg-blue-50/10' : 'border-slate-200 bg-slate-50'}`}
               >
                 {previewUrl ? (
-                  <img src={previewUrl} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={previewUrl} className="absolute inset-0 w-full h-full object-cover" loading="lazy" width="192" height="192" alt="Product preview" />
                 ) : (
                   <>
                     <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400">
@@ -256,10 +260,12 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                   </>
                 )}
                 <input 
+                  id="product-visual"
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   className="absolute inset-0 opacity-0 cursor-pointer"
+                  aria-label="Upload product image"
                 />
               </div>
             </div>
@@ -333,7 +339,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
-                              <img src={product.image} className="w-full h-full object-cover" />
+                              <img src={product.image} className="w-full h-full object-cover" loading="lazy" width="48" height="48" alt={product.name} />
                             </div>
                             <div>
                               <p className="font-black text-sm uppercase tracking-tight leading-tight">{product.name}</p>
@@ -352,12 +358,14 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                             <button 
                               onClick={() => handleEdit(product)}
                               className="p-3 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+                              aria-label={`Edit ${product.name}`}
                             >
                               <Pencil size={18} />
                             </button>
                             <button 
                               onClick={() => handleDelete(product.id)}
                               className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                              aria-label={`Delete ${product.name}`}
                             >
                               <Trash2 size={18} />
                             </button>

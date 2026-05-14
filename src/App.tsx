@@ -254,6 +254,7 @@ export default function App() {
             onClick={() => setIsCartOpen(true)}
             className="relative p-2 hover:bg-slate-100 rounded-full transition-colors"
             id="cart-trigger"
+            aria-label="Open shopping cart"
           >
             <ShoppingCart size={22} className="text-slate-800" />
             {totalItems > 0 && (
@@ -320,6 +321,9 @@ export default function App() {
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    width="400"
+                    height="300"
                   />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-100">
                     {product.brand}
@@ -370,6 +374,7 @@ export default function App() {
                 <button 
                   onClick={() => setIsCartOpen(false)}
                   className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                  aria-label="Close shopping cart drawer"
                 >
                   <X size={24} />
                 </button>
@@ -385,7 +390,7 @@ export default function App() {
                   cart.map(item => (
                     <div key={item.id} className="flex gap-4 items-center">
                       <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" width="80" height="80" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-1">
@@ -394,11 +399,11 @@ export default function App() {
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                            <button onClick={() => updateQuantity(item.id, -1)} className="p-1 px-2 hover:bg-slate-200 transition-colors border-r border-slate-200"><Minus size={12}/></button>
+                            <button onClick={() => updateQuantity(item.id, -1)} aria-label="Decrease quantity" className="p-1 px-2 hover:bg-slate-200 transition-colors border-r border-slate-200"><Minus size={12}/></button>
                             <span className="px-3 text-[10px] font-black">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} className="p-1 px-2 hover:bg-slate-200 transition-colors border-l border-slate-200"><Plus size={12}/></button>
+                            <button onClick={() => updateQuantity(item.id, 1)} aria-label="Increase quantity" className="p-1 px-2 hover:bg-slate-200 transition-colors border-l border-slate-200"><Plus size={12}/></button>
                           </div>
-                          <button onClick={() => removeFromCart(item.id)} className="text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
+                          <button onClick={() => removeFromCart(item.id)} aria-label="Remove item from cart" className="text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
                         </div>
                       </div>
                     </div>
@@ -470,6 +475,7 @@ export default function App() {
                     <button 
                       onClick={() => setIsCheckoutOpen(false)}
                       className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                      aria-label="Close checkout modal"
                     >
                       <X size={24} />
                     </button>
@@ -477,38 +483,44 @@ export default function App() {
 
                   <form onSubmit={handleSubmitOrder} className="space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Full Name</label>
+                      <label htmlFor="customer-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Full Name</label>
                       <input 
                         required
+                        id="customer-name"
                         type="text" 
                         value={form.name}
                         onChange={e => setForm({ ...form, name: e.target.value })}
                         className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
                         placeholder="John Doe"
+                        autoComplete="name"
                       />
                     </div>
                     <div className="grid grid-cols-1 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Phone Number</label>
+                        <label htmlFor="customer-phone" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Phone Number</label>
                         <input 
                           required
+                          id="customer-phone"
                           type="tel" 
                           value={form.phone}
                           onChange={e => setForm({ ...form, phone: e.target.value })}
                           className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
                           placeholder="+1 (555) 000-0000"
+                          autoComplete="tel"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Shipping Address</label>
+                      <label htmlFor="customer-address" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Shipping Address</label>
                       <textarea 
                         required
+                        id="customer-address"
                         rows={3}
                         value={form.address}
                         onChange={e => setForm({ ...form, address: e.target.value })}
                         className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm resize-none"
                         placeholder="Street Address, Build, Apartment"
+                        autoComplete="street-address"
                       />
                     </div>
 
