@@ -10,7 +10,8 @@ export async function onRequestGet(context) {
       image: row.image_url,
       specs: row.specs || '',
       stock_quantity: row.stock_quantity || 0,
-      imei_list: row.imei_list || ''
+      imei_list: row.imei_list || '',
+      additional_info: row.additional_info || '' // <-- NEW
     }));
 
     return new Response(JSON.stringify(formattedResults), {

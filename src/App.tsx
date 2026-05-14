@@ -35,6 +35,7 @@ interface Product {
   image: string;
   brand: string;
   stock_quantity?: number;
+  additional_info?: string;
 }
 
 interface CartItem extends Product {
@@ -453,8 +454,18 @@ export default function App() {
                   <div className="flex-1 space-y-1 mb-6">
                     <h3 className="font-display font-bold text-xl leading-tight">{product.name}</h3>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{product.specs}</p>
-                    {product.stock_quantity !== undefined && product.stock_quantity > 0 && product.stock_quantity <= 5 && (
-                      <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-1">Low Stock: {product.stock_quantity}</p>
+                    {product.additional_info && (
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1 opacity-80">{product.additional_info}</p>
+                    )}
+                    {product.stock_quantity !== undefined && product.stock_quantity > 0 && (
+                      <div className={`inline-flex items-center gap-1.5 mt-2 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                        product.stock_quantity <= 3 
+                        ? 'bg-red-50 text-red-600' 
+                        : 'bg-emerald-50 text-emerald-600'
+                      }`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${product.stock_quantity <= 3 ? 'bg-red-600 animate-pulse' : 'bg-emerald-600'}`} />
+                        Only {product.stock_quantity} left!
+                      </div>
                     )}
                   </div>
                   <div className="flex items-center justify-between mt-auto">

@@ -19,6 +19,7 @@ export async function onRequestPut(context) {
     const specs = formData.get('specs') || '';
     const stock_quantity = formData.get('stock_quantity') || 0;
     const imei_list = formData.get('imei_list') || '';
+    const additional_info = formData.get('additional_info') || ''; // <-- NEW
     const imageFile = formData.get('image');
 
     if (imageFile && imageFile.name) {
@@ -31,13 +32,13 @@ export async function onRequestPut(context) {
       const publicUrl = `https://pub-1bd14d351a7a42eeae69dcb69d806c00.r2.dev/${fileName}`;
 
       await context.env.DB.prepare(
-        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, stock_quantity = ?, imei_list = ?, image_url = ? WHERE id = ?"
-      ).bind(brand, model, price, specs, stock_quantity, imei_list, publicUrl, id).run();
+        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, stock_quantity = ?, imei_list = ?, additional_info = ?, image_url = ? WHERE id = ?"
+      ).bind(brand, model, price, specs, stock_quantity, imei_list, additional_info, publicUrl, id).run();
 
     } else {
       await context.env.DB.prepare(
-        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, stock_quantity = ?, imei_list = ? WHERE id = ?"
-      ).bind(brand, model, price, specs, stock_quantity, imei_list, id).run();
+        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, stock_quantity = ?, imei_list = ?, additional_info = ? WHERE id = ?"
+      ).bind(brand, model, price, specs, stock_quantity, imei_list, additional_info, id).run();
     }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" }});

@@ -23,6 +23,7 @@ interface Product {
   brand: string;
   stock_quantity: number;
   imei_list?: string;
+  additional_info?: string;
 }
 
 interface AdminDashboardProps {
@@ -53,6 +54,7 @@ const TRANSLATIONS = {
     valuation: "ဈေးနှုန်း",
     stock: "လက်ကျန်",
     imei_list: "IMEI စာရင်း",
+    additional_info: "နောက်ထပ် အချက်အလက်များ (ဥပမာ- လက်ဆောင်များ၊ အာမခံ)",
     actions: "လုပ်ဆောင်ချက်များ",
     syncing_nodes: "စနစ်များ ချိတ်ဆက်နေသည်...",
     no_assets: "မည်သည့် ပစ္စည်းမှ မရှိသေးပါ။",
@@ -86,6 +88,7 @@ const TRANSLATIONS = {
     valuation: "Valuation",
     stock: "Stock",
     imei_list: "IMEI List",
+    additional_info: "Additional Information (e.g., Free Gifts, Warranty)",
     actions: "Actions",
     syncing_nodes: "Synchronizing Nodes...",
     no_assets: "No active assets found.",
@@ -113,7 +116,8 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
     price: '',
     specs: '',
     stock_quantity: '0',
-    imei_list: ''
+    imei_list: '',
+    additional_info: ''
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -155,7 +159,8 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
       price: product.price.toString(),
       specs: product.specs,
       stock_quantity: product.stock_quantity.toString(),
-      imei_list: product.imei_list || ''
+      imei_list: product.imei_list || '',
+      additional_info: product.additional_info || ''
     });
     setPreviewUrl(product.image);
     // Scroll to form
@@ -164,7 +169,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '0', imei_list: '' });
+    setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '0', imei_list: '', additional_info: '' });
     setImageFile(null);
     setPreviewUrl(null);
   };
@@ -181,6 +186,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
     data.append('specs', formData.specs);
     data.append('stock_quantity', formData.stock_quantity);
     data.append('imei_list', formData.imei_list);
+    data.append('additional_info', formData.additional_info);
     if (imageFile) {
       data.append('image', imageFile);
     }
@@ -196,7 +202,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
 
         if (res.ok) {
         setStatus({ type: 'success', msg: editingId ? t.success_update : t.success_add });
-        setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '0', imei_list: '' });
+        setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '0', imei_list: '', additional_info: '' });
         setImageFile(null);
         setPreviewUrl(null);
         setEditingId(null);
@@ -344,6 +350,16 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
                   placeholder="IMEI1, IMEI2, ..."
                   value={formData.imei_list}
                   onChange={e => setFormData({ ...formData, imei_list: e.target.value })}
+                  className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm h-24 resize-none"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <label htmlFor="additional-info" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.additional_info}</label>
+                <textarea 
+                  id="additional-info"
+                  placeholder="Free Powerbank, 1 Year Warranty..."
+                  value={formData.additional_info}
+                  onChange={e => setFormData({ ...formData, additional_info: e.target.value })}
                   className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm h-24 resize-none"
                 />
               </div>
