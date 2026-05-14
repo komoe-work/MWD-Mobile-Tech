@@ -16,7 +16,9 @@ export async function onRequestPut(context) {
     const brand = formData.get('brand');
     const model = formData.get('name');
     const price = formData.get('price');
-    const specs = formData.get('specs'); // Now grabs specs
+    const specs = formData.get('specs') || '';
+    const stock_quantity = formData.get('stock_quantity') || 0;
+    const imei_list = formData.get('imei_list') || '';
     const imageFile = formData.get('image');
 
     if (imageFile && imageFile.name) {
@@ -29,13 +31,13 @@ export async function onRequestPut(context) {
       const publicUrl = `https://pub-1bd14d351a7a42eeae69dcb69d806c00.r2.dev/${fileName}`;
 
       await context.env.DB.prepare(
-        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, image_url = ? WHERE id = ?"
-      ).bind(brand, model, price, specs, publicUrl, id).run();
+        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, stock_quantity = ?, imei_list = ?, image_url = ? WHERE id = ?"
+      ).bind(brand, model, price, specs, stock_quantity, imei_list, publicUrl, id).run();
 
     } else {
       await context.env.DB.prepare(
-        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ? WHERE id = ?"
-      ).bind(brand, model, price, specs, id).run();
+        "UPDATE inventory SET brand = ?, model = ?, price = ?, specs = ?, stock_quantity = ?, imei_list = ? WHERE id = ?"
+      ).bind(brand, model, price, specs, stock_quantity, imei_list, id).run();
     }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" }});

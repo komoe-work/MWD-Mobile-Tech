@@ -22,6 +22,7 @@ async function startServer() {
       price: 1150000,
       brand: 'Redmi',
       stock_quantity: 15,
+      imei_list: "",
       image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -31,6 +32,7 @@ async function startServer() {
       price: 1850000,
       brand: 'Meizu',
       stock_quantity: 8,
+      imei_list: "",
       image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -40,6 +42,7 @@ async function startServer() {
       price: 1450000,
       brand: 'OPPO',
       stock_quantity: 12,
+      imei_list: "",
       image: 'https://images.unsplash.com/photo-1610940882244-5966236ca6d5?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -49,6 +52,7 @@ async function startServer() {
       price: 750000,
       brand: 'Redmi',
       stock_quantity: 25,
+      imei_list: "",
       image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -58,6 +62,7 @@ async function startServer() {
       price: 2650000,
       brand: 'Meizu',
       stock_quantity: 5,
+      imei_list: "",
       image: 'https://images.unsplash.com/photo-1592890288564-76628a30a657?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -67,6 +72,7 @@ async function startServer() {
       price: 850000,
       brand: 'OPPO',
       stock_quantity: 10,
+      imei_list: "",
       image: 'https://images.unsplash.com/photo-1556656793-062ff98782fe?auto=format&fit=crop&q=80&w=400',
     },
   ];
@@ -109,7 +115,7 @@ async function startServer() {
   });
 
   app.post("/api/admin/inventory", upload.single("image"), (req, res) => {
-    const { name, brand, price, specs, stock_quantity } = req.body;
+    const { name, brand, price, specs, stock_quantity, imei_list } = req.body;
     let imageUrl = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400"; // Fallback
 
     if (req.file) {
@@ -125,6 +131,7 @@ async function startServer() {
       price: parseFloat(price),
       specs: specs || "Latest Generation",
       stock_quantity: parseInt(stock_quantity || "0"),
+      imei_list: imei_list || "",
       image: imageUrl,
     };
 
@@ -140,7 +147,7 @@ async function startServer() {
 
   app.put("/api/phone/:id", upload.single("image"), (req, res) => {
     const { id } = req.params;
-    const { name, brand, price, specs, stock_quantity } = req.body;
+    const { name, brand, price, specs, stock_quantity, imei_list } = req.body;
     const index = products.findIndex(p => p.id === id);
 
     if (index === -1) {
@@ -160,6 +167,7 @@ async function startServer() {
       price: price ? parseFloat(price) : products[index].price,
       specs: specs || products[index].specs,
       stock_quantity: stock_quantity ? parseInt(stock_quantity) : products[index].stock_quantity,
+      imei_list: imei_list || products[index].imei_list,
       image: imageUrl
     };
 

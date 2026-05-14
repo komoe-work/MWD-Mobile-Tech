@@ -2,14 +2,15 @@ export async function onRequestGet(context) {
   try {
     const { results } = await context.env.DB.prepare("SELECT * FROM inventory").all();
     
-    // Format the database rows to match exactly what the React frontend expects
     const formattedResults = results.map(row => ({
       id: row.id.toString(),
-      name: row.model,       // Translates DB 'model' to UI 'name'
+      name: row.model,
       brand: row.brand,
       price: row.price,
-      image: row.image_url,  // Translates DB 'image_url' to UI 'image'
-      specs: row.specs || '' // Sends specs
+      image: row.image_url,
+      specs: row.specs || '',
+      stock_quantity: row.stock_quantity || 0,
+      imei_list: row.imei_list || ''
     }));
 
     return new Response(JSON.stringify(formattedResults), {

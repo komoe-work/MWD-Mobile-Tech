@@ -22,6 +22,7 @@ interface Product {
   image: string;
   brand: string;
   stock_quantity: number;
+  imei_list?: string;
 }
 
 interface AdminDashboardProps {
@@ -51,6 +52,7 @@ const TRANSLATIONS = {
     specifications: "အသေးစိတ် အချက်အလက်များ",
     valuation: "ဈေးနှုန်း",
     stock: "လက်ကျန်",
+    imei_list: "IMEI စာရင်း",
     actions: "လုပ်ဆောင်ချက်များ",
     syncing_nodes: "စနစ်များ ချိတ်ဆက်နေသည်...",
     no_assets: "မည်သည့် ပစ္စည်းမှ မရှိသေးပါ။",
@@ -83,6 +85,7 @@ const TRANSLATIONS = {
     specifications: "Specifications",
     valuation: "Valuation",
     stock: "Stock",
+    imei_list: "IMEI List",
     actions: "Actions",
     syncing_nodes: "Synchronizing Nodes...",
     no_assets: "No active assets found.",
@@ -109,7 +112,8 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
     brand: '',
     price: '',
     specs: '',
-    stock_quantity: ''
+    stock_quantity: '0',
+    imei_list: ''
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -150,7 +154,8 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
       brand: product.brand,
       price: product.price.toString(),
       specs: product.specs,
-      stock_quantity: product.stock_quantity.toString()
+      stock_quantity: product.stock_quantity.toString(),
+      imei_list: product.imei_list || ''
     });
     setPreviewUrl(product.image);
     // Scroll to form
@@ -159,7 +164,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '' });
+    setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '0', imei_list: '' });
     setImageFile(null);
     setPreviewUrl(null);
   };
@@ -175,6 +180,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
     data.append('price', formData.price);
     data.append('specs', formData.specs);
     data.append('stock_quantity', formData.stock_quantity);
+    data.append('imei_list', formData.imei_list);
     if (imageFile) {
       data.append('image', imageFile);
     }
@@ -188,9 +194,9 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
         body: data
       });
 
-      if (res.ok) {
+        if (res.ok) {
         setStatus({ type: 'success', msg: editingId ? t.success_update : t.success_add });
-        setFormData({ name: '', brand: '', price: '', specs: '' });
+        setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '0', imei_list: '' });
         setImageFile(null);
         setPreviewUrl(null);
         setEditingId(null);
@@ -331,6 +337,16 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
                   className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
                 />
               </div>
+              <div className="space-y-2 sm:col-span-2">
+                <label htmlFor="imei-list" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.imei_list}</label>
+                <textarea 
+                  id="imei-list"
+                  placeholder="IMEI1, IMEI2, ..."
+                  value={formData.imei_list}
+                  onChange={e => setFormData({ ...formData, imei_list: e.target.value })}
+                  className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm h-24 resize-none"
+                />
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -432,7 +448,12 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
                               <img src={product.image} className="w-full h-full object-cover" loading="lazy" width="48" height="48" alt={product.name} />
                             </div>
                             <div>
-                              <p className="font-black text-sm uppercase tracking-tight leading-tight">{product.name}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-black text-sm uppercase tracking-tight leading-tight">{product.name}</p>
+                                {product.stock_quantity <= 3 && (
+                                  <span className="px-1.5 py-0.5 bg-red-100 text-red-600 text-[8px] font-black uppercase rounded tracking-tighter">Low</span>
+                                )}
+                              </div>
                               <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-1">{product.brand}</p>
                             </div>
                           </div>
