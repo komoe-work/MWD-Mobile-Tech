@@ -130,6 +130,7 @@ const TRANSLATIONS = {
     placeholder_phone: "၀၉ ...",
     placeholder_address: "လမ်း၊ အိမ်အမှတ်၊ မြို့နယ်",
     submit_order: "အော်ဒါတင်မည်",
+    out_of_stock: "ပစ္စည်းပြတ်နေပါသည်",
     all_rights_reserved: "မူပိုင်ခွင့် အားလုံးကို လက်ဝယ်ရှိပါသည်။",
   },
   en: {
@@ -159,6 +160,7 @@ const TRANSLATIONS = {
     placeholder_phone: "+1 (555) 000-0000",
     placeholder_address: "Street Address, Build, Apartment",
     submit_order: "Submit Order",
+    out_of_stock: "Out of Stock",
     all_rights_reserved: "ALL RIGHTS RESERVED.",
   }
 };
@@ -220,6 +222,7 @@ export default function App() {
   }, [view]);
 
   const addToCart = (product: Product) => {
+    if (product.stock_quantity !== undefined && product.stock_quantity <= 0) return;
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
@@ -415,44 +418,62 @@ export default function App() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product, index) => (
-              <motion.div 
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all flex flex-col"
-                id={`product-${product.id}`}
-              >
-                <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 mb-6 flex items-center justify-center relative">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                    loading="lazy"
-                    width="400"
-                    height="300"
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-100">
-                    {product.brand}
+            {products.map((product, index) => {
+              const isOutOfStock = product.stock_quantity !== undefined && product.stock_quantity <= 0;
+              return (
+                <motion.div 
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`group bg-white rounded-2xl border border-slate-100 p-6 shadow-sm transition-all flex flex-col ${isOutOfStock ? 'opacity-75 grayscale' : 'hover:shadow-xl hover:shadow-slate-200/50'}`}
+                  id={`product-${product.id}`}
+                >
+                  <div className="aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 mb-6 flex items-center justify-center relative">
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      className={`w-full h-full object-cover transition-transform duration-700 ${!isOutOfStock && 'group-hover:scale-105'}`}
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      width="400"
+                      height="300"
+                    />
+                    {isOutOfStock && (
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                        <span className="bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-lg">
+                          Sold Out
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-100">
+                      {product.brand}
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1 space-y-1 mb-6">
-                  <h3 className="font-display font-bold text-xl leading-tight">{product.name}</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{product.specs}</p>
-                </div>
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-2xl font-bold tracking-tight">{formatPrice(product.price)}</span>
-                  <button 
-                    onClick={() => addToCart(product)}
-                    className="px-6 py-2.5 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
-                  >
-                    {t.add_to_cart}
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="flex-1 space-y-1 mb-6">
+                    <h3 className="font-display font-bold text-xl leading-tight">{product.name}</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{product.specs}</p>
+                    {product.stock_quantity !== undefined && product.stock_quantity > 0 && product.stock_quantity <= 5 && (
+                      <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-1">Low Stock: {product.stock_quantity}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-2xl font-bold tracking-tight">{formatPrice(product.price)}</span>
+                    <button 
+                      onClick={() => addToCart(product)}
+                      disabled={isOutOfStock}
+                      className={`px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all shadow-sm ${
+                        isOutOfStock 
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                        : 'bg-black text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      {isOutOfStock ? t.out_of_stock : t.add_to_cart}
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </main>
