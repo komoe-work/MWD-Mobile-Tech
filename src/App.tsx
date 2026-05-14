@@ -177,6 +177,10 @@ export default function App() {
   const totalItems = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
   const totalPrice = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
 
+  const formatPrice = (price: number) => {
+    return price.toLocaleString() + ' Ks';
+  };
+
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) return;
@@ -246,8 +250,6 @@ export default function App() {
         <div className="flex items-center gap-8">
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
             <a href="#" className="text-black border-b-2 border-black pb-1">Store</a>
-            <a href="#" className="hover:text-black transition-colors">Inventory</a>
-            <a href="#" className="hover:text-black transition-colors">Orders</a>
           </nav>
 
           <button 
@@ -334,7 +336,7 @@ export default function App() {
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{product.specs}</p>
                 </div>
                 <div className="flex items-center justify-between mt-auto">
-                  <span className="text-2xl font-bold tracking-tight">${product.price}.00</span>
+                  <span className="text-2xl font-bold tracking-tight">{formatPrice(product.price)}</span>
                   <button 
                     onClick={() => addToCart(product)}
                     className="px-6 py-2.5 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
@@ -395,7 +397,7 @@ export default function App() {
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-1">
                           <h4 className="font-bold text-sm truncate uppercase tracking-tight">{item.name}</h4>
-                          <span className="font-bold text-slate-900 ml-2">${item.price}</span>
+                          <span className="font-bold text-slate-900 ml-2">{formatPrice(item.price)}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center bg-slate-100 rounded-lg overflow-hidden shrink-0">
@@ -415,11 +417,11 @@ export default function App() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
                     <span>Subtotal</span>
-                    <span>${totalPrice}.00</span>
+                    <span>{formatPrice(totalPrice)}</span>
                   </div>
                   <div className="flex items-center justify-between font-display">
                     <span className="font-bold text-lg">Total</span>
-                    <span className="text-3xl font-black text-blue-600">${totalPrice}.00</span>
+                    <span className="text-3xl font-black text-blue-600">{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
                 <button 
@@ -534,7 +536,7 @@ export default function App() {
                           <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                           <>
-                            Submit Order <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            Submit Order ({formatPrice(totalPrice)}) <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                           </>
                         )}
                       </button>
@@ -557,7 +559,6 @@ export default function App() {
           </div>
           <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <a href="#" className="hover:text-black transition-colors">Store</a>
-            <a href="#" className="hover:text-black transition-colors">Inventory</a>
             <button 
               onClick={() => setView('admin')}
               className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"

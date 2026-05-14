@@ -59,6 +59,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     }
   };
 
+  const formatPrice = (price: number) => {
+    return price.toLocaleString() + ' Ks';
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -220,12 +224,12 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="product-price" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Price ($)</label>
+                <label htmlFor="product-price" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Price (Ks)</label>
                 <input 
                   required
                   id="product-price"
                   type="number"
-                  placeholder="299"
+                  placeholder="1,200,000"
                   value={formData.price}
                   onChange={e => setFormData({ ...formData, price: e.target.value })}
                   className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
@@ -351,7 +355,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                            <span className="text-xs font-medium text-slate-600">{product.specs}</span>
                         </td>
                         <td className="px-8 py-5">
-                           <span className="font-bold text-slate-900">${product.price}.00</span>
+                           <span className="font-bold text-slate-900">{formatPrice(product.price)}</span>
                         </td>
                         <td className="px-8 py-5 text-right">
                           <div className="flex items-center justify-end gap-2">
