@@ -147,16 +147,20 @@ export default function POSSystem({ onBack }: POSSystemProps) {
       <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200">
         <header className="p-6 bg-white border-b border-slate-200 flex items-center gap-6">
           <button 
+            type="button"
             onClick={onBack}
             className="p-3 hover:bg-slate-50 rounded-2xl transition-colors border border-slate-100 group"
             title="Back"
+            aria-label="Back to store"
           >
             <ArrowLeft size={24} className="text-slate-400 group-hover:text-black" />
           </button>
           
           <div className="relative flex-1">
+            <label htmlFor="inventory-search" className="sr-only">Search inventory</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input 
+              id="inventory-search"
               type="text" 
               placeholder="Search assets or brands..." 
               value={searchTerm}
@@ -188,7 +192,14 @@ export default function POSSystem({ onBack }: POSSystemProps) {
                   className={`group relative text-left bg-white p-4 rounded-[2rem] border transition-all shadow-sm flex flex-col h-full ${product.stock_quantity <= 0 ? 'opacity-50 grayscale' : 'hover:border-black hover:shadow-xl hover:shadow-black/5'} ${cart.some(item => item.id === product.id) ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-50/10' : 'border-slate-200'}`}
                 >
                   <div className="aspect-square rounded-2xl overflow-hidden bg-slate-50 mb-4 border border-slate-100 relative">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      loading="lazy"
+                      width="300"
+                      height="300"
+                    />
                     {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
                       <div className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-tighter shadow-lg">
                         Low Stock: {product.stock_quantity}
@@ -225,9 +236,11 @@ export default function POSSystem({ onBack }: POSSystemProps) {
             <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Register #021 - {new Date().toLocaleDateString()}</p>
           </div>
           <button 
+            type="button"
             onClick={() => setCart([])}
             className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
             title="Clear Cart"
+            aria-label="Clear shopping cart"
           >
             <Trash2 size={24} />
           </button>
@@ -255,7 +268,7 @@ export default function POSSystem({ onBack }: POSSystemProps) {
                   className="bg-slate-50 p-4 rounded-3xl border border-slate-100 flex gap-4 items-center group"
                 >
                   <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm shrink-0">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" width="64" height="64" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-black text-xs uppercase tracking-tight truncate">{item.name}</h4>
@@ -263,15 +276,19 @@ export default function POSSystem({ onBack }: POSSystemProps) {
                   </div>
                   <div className="flex items-center bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                     <button 
+                      type="button"
                       onClick={() => updateQuantity(item.id, -1)}
                       className="p-2 hover:bg-slate-50 text-slate-400 hover:text-black transition-colors"
+                      aria-label="Decrease quantity"
                     >
                       <Minus size={14} />
                     </button>
                     <span className="w-8 text-center font-black text-xs">{item.quantity}</span>
                     <button 
+                      type="button"
                       onClick={() => updateQuantity(item.id, 1)}
                       className="p-2 hover:bg-slate-50 text-slate-400 hover:text-black transition-colors"
+                      aria-label="Increase quantity"
                     >
                       <Plus size={14} />
                     </button>
@@ -286,28 +303,32 @@ export default function POSSystem({ onBack }: POSSystemProps) {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Customer Name</label>
+                <label htmlFor="customer-name" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Customer Name</label>
                 <div className="relative">
                   <User size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                   <input 
+                    id="customer-name"
                     type="text" 
                     placeholder="Optional"
                     value={customer.name}
                     onChange={e => setCustomer({ ...customer, name: e.target.value })}
                     className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-black transition-all text-xs font-bold"
+                    autoComplete="name"
                   />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
+                <label htmlFor="customer-phone" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
                 <div className="relative">
                   <Phone size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                   <input 
+                    id="customer-phone"
                     type="tel" 
                     placeholder="Optional"
                     value={customer.phone}
                     onChange={e => setCustomer({ ...customer, phone: e.target.value })}
                     className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:border-black transition-all text-xs font-bold"
+                    autoComplete="tel"
                   />
                 </div>
               </div>
@@ -315,10 +336,11 @@ export default function POSSystem({ onBack }: POSSystemProps) {
 
             <div className="grid grid-cols-2 gap-3">
                <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Discount (Ks)</label>
+                <label htmlFor="cart-discount" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Discount (Ks)</label>
                 <div className="relative">
                   <Banknote size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                   <input 
+                    id="cart-discount"
                     type="number" 
                     placeholder="0"
                     value={discount || ''}

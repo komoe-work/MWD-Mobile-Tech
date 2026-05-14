@@ -318,6 +318,7 @@ export default function App() {
             <h1 className="font-display font-black text-xl tracking-tighter uppercase">{t.app_title}</h1>
           </div>
           <button 
+            type="button"
             onClick={() => setLang(lang === 'mm' ? 'en' : 'mm')}
             className="flex items-center gap-2 p-2 hover:bg-slate-100 rounded-lg transition-colors border border-slate-100 group"
             aria-label="Switch Language"
@@ -351,6 +352,7 @@ export default function App() {
 
           <div className="flex items-center gap-2">
             <button 
+              type="button"
               onClick={() => setLang(lang === 'mm' ? 'en' : 'mm')}
               className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 rounded-xl transition-all border border-slate-100 group"
               aria-label="Switch Language"
@@ -360,6 +362,7 @@ export default function App() {
             </button>
 
             <button 
+              type="button"
               onClick={() => setIsCartOpen(true)}
               className="relative p-2.5 hover:bg-slate-100 rounded-xl transition-all"
               id="cart-trigger"
@@ -510,6 +513,7 @@ export default function App() {
                   <ShoppingCart size={24} /> {t.cart}
                 </h3>
                 <button 
+                  type="button"
                   onClick={() => setIsCartOpen(false)}
                   className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                   aria-label="Close shopping cart drawer"
@@ -537,11 +541,11 @@ export default function App() {
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                            <button onClick={() => updateQuantity(item.id, -1)} aria-label="Decrease quantity" className="p-1 px-2 hover:bg-slate-200 transition-colors border-r border-slate-200"><Minus size={12}/></button>
+                            <button type="button" onClick={() => updateQuantity(item.id, -1)} aria-label="Decrease quantity" className="p-1 px-2 hover:bg-slate-200 transition-colors border-r border-slate-200"><Minus size={12}/></button>
                             <span className="px-3 text-[10px] font-black">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} aria-label="Increase quantity" className="p-1 px-2 hover:bg-slate-200 transition-colors border-l border-slate-200"><Plus size={12}/></button>
+                            <button type="button" onClick={() => updateQuantity(item.id, 1)} aria-label="Increase quantity" className="p-1 px-2 hover:bg-slate-200 transition-colors border-l border-slate-200"><Plus size={12}/></button>
                           </div>
-                          <button onClick={() => removeFromCart(item.id)} aria-label="Remove item from cart" className="text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
+                          <button type="button" onClick={() => removeFromCart(item.id)} aria-label="Remove item from cart" className="text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16}/></button>
                         </div>
                       </div>
                     </div>
@@ -561,6 +565,7 @@ export default function App() {
                   </div>
                 </div>
                 <button 
+                  type="button"
                   disabled={cart.length === 0}
                   onClick={() => setIsCheckoutOpen(true)}
                   className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 disabled:opacity-50 shadow-xl shadow-blue-100 transition-all"
@@ -611,6 +616,7 @@ export default function App() {
                       <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">{t.checkout_desc}</p>
                     </div>
                     <button 
+                      type="button"
                       onClick={() => setIsCheckoutOpen(false)}
                       className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                       aria-label="Close checkout modal"
@@ -714,12 +720,14 @@ export default function App() {
           <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <a href="#" className="hover:text-black transition-colors">{t.store}</a>
             <button 
+              type="button"
               onClick={() => setView('admin')}
               className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"
             >
               <ShieldCheck size={12} /> {t.admin}
             </button>
             <button 
+              type="button"
               onClick={() => setView('pos')}
               className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"
             >

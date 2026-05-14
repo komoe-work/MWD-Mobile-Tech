@@ -15,7 +15,10 @@ export async function onRequestGet(context) {
     }));
 
     return new Response(JSON.stringify(formattedResults), {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=300, s-maxage=3600"
+      }
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
