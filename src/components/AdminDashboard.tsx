@@ -25,9 +25,76 @@ interface Product {
 
 interface AdminDashboardProps {
   onBack: () => void;
+  lang: 'mm' | 'en';
 }
 
-export default function AdminDashboard({ onBack }: AdminDashboardProps) {
+const TRANSLATIONS = {
+  mm: {
+    back_to_store: "အရောင်းဆိုင်သို့ ပြန်သွားမည်",
+    admin_console: "စီမံခန့်ခွဲရေးဌာန",
+    admin_desc: "ကုန်ပစ္စည်းစာရင်းနှင့် အချက်အလက်များကို စီမံခန့်ခွဲပါ။",
+    total_sku: "စုစုပေါင်း ပစ္စည်းအရေအတွက်",
+    edit_asset: "အချက်အလက် ပြင်ဆင်မည်",
+    new_asset: "ကုန်ပစ္စည်းအသစ် ထည့်သွင်းမည်",
+    cancel: "ပယ်ဖျက်မည်",
+    brand_name: "တံဆိပ်အမည်",
+    model_name: "မော်ဒယ်အမည်",
+    price_ks: "ဈေးနှုန်း (ကျပ်)",
+    specs: "အချက်အလက်များ",
+    product_visual: "ကုန်ပစ္စည်းပုံစံ",
+    upload_frame: "ပုံတင်မည်",
+    commit_to_catalog: "စာရင်းထဲသို့ ထည့်မည်",
+    update_catalog: "စာရင်း ပြင်ဆင်မည်",
+    active_inventory: "လက်ရှိ ပစ္စည်းစာရင်း",
+    hardware: "ပစ္စည်းအမျိုးအမည်",
+    specifications: "အသေးစိတ် အချက်အလက်များ",
+    valuation: "ဈေးနှုန်း",
+    actions: "လုပ်ဆောင်ချက်များ",
+    syncing_nodes: "စနစ်များ ချိတ်ဆက်နေသည်...",
+    no_assets: "မည်သည့် ပစ္စည်းမှ မရှိသေးပါ။",
+    system_analytics: "စနစ်ပိုင်းဆိုင်ရာ သုံးသပ်ချက်",
+    cloud_sync: "Cloud ချိတ်ဆက်မှု: အောင်မြင်သည်",
+    online_nodes: "အွန်လိုင်း ချိတ်ဆက်မှုများ",
+    confirmation_delete: "ဤကုန်ပစ္စည်းကို ဖျက်ရန် သေချာပါသလား?",
+    success_add: "ကုန်ပစ္စည်းကို အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။",
+    success_update: "ကုန်ပစ္စည်းကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။",
+    failed_save: "သိမ်းဆည်းရာတွင် အမှားအယွင်းရှိပါသည်။ ပြန်လည် ကြိုးစားကြည့်ပါ။",
+  },
+  en: {
+    back_to_store: "Back to Store",
+    admin_console: "Admin Console",
+    admin_desc: "Manage your product catalog and global inventory.",
+    total_sku: "Total SKU",
+    edit_asset: "Edit Asset",
+    new_asset: "New Technical Asset",
+    cancel: "Cancel",
+    brand_name: "Brand Name",
+    model_name: "Model Name",
+    price_ks: "Price (Ks)",
+    specs: "Specs",
+    product_visual: "Product Visual",
+    upload_frame: "Upload Frame",
+    commit_to_catalog: "Commit to Catalog",
+    update_catalog: "Update Catalog",
+    active_inventory: "Active Inventory",
+    hardware: "Hardware",
+    specifications: "Specifications",
+    valuation: "Valuation",
+    actions: "Actions",
+    syncing_nodes: "Synchronizing Nodes...",
+    no_assets: "No active assets found.",
+    system_analytics: "System Analytics",
+    cloud_sync: "Cloud Sync: Synchronized",
+    online_nodes: "Online Nodes",
+    confirmation_delete: "Are you sure you want to delete this product?",
+    success_add: "Product added successfully!",
+    success_update: "Product updated successfully!",
+    failed_save: "Failed to save product. Please try again.",
+  }
+};
+
+export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
+  const t = TRANSLATIONS[lang];
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,7 +183,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
       });
 
       if (res.ok) {
-        setStatus({ type: 'success', msg: editingId ? 'Product updated successfully!' : 'Product added successfully!' });
+        setStatus({ type: 'success', msg: editingId ? t.success_update : t.success_add });
         setFormData({ name: '', brand: '', price: '', specs: '' });
         setImageFile(null);
         setPreviewUrl(null);
@@ -126,14 +193,14 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
         throw new Error('Failed to save product');
       }
     } catch (err) {
-      setStatus({ type: 'error', msg: 'Failed to save product. Please try again.' });
+      setStatus({ type: 'error', msg: t.failed_save });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm(t.confirmation_delete)) return;
 
     try {
       const res = await fetch(`/api/phone/${id}`, {
@@ -158,10 +225,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
             className="flex items-center gap-2 text-slate-400 hover:text-black transition-colors mb-4 group"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Back to Store</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{t.back_to_store}</span>
           </button>
-          <h1 className="font-display font-black text-4xl tracking-tight uppercase">Admin Console</h1>
-          <p className="text-slate-500 font-medium">Manage your product catalog and global inventory.</p>
+          <h1 className="font-display font-black text-4xl tracking-tight uppercase">{t.admin_console}</h1>
+          <p className="text-slate-500 font-medium">{t.admin_desc}</p>
         </div>
         
         <div className="flex gap-4">
@@ -170,7 +237,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
               <Package size={20} />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total SKU</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{t.total_sku}</p>
               <p className="text-xl font-bold">{products.length}</p>
             </div>
           </div>
@@ -183,21 +250,21 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-display font-bold text-xl flex items-center gap-2">
               {editingId ? <Pencil size={20} className="text-blue-600" /> : <Plus size={20} className="text-blue-600" />}
-              {editingId ? 'Edit Asset' : 'New Technical Asset'}
+              {editingId ? t.edit_asset : t.new_asset}
             </h2>
             {editingId && (
               <button 
                 onClick={cancelEdit}
                 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
             )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="brand-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Brand Name</label>
+              <label htmlFor="brand-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.brand_name}</label>
               <input 
                 required
                 id="brand-name"
@@ -210,7 +277,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="model-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Model Name</label>
+              <label htmlFor="model-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.model_name}</label>
               <input 
                 required
                 id="model-name"
@@ -224,7 +291,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="product-price" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Price (Ks)</label>
+                <label htmlFor="product-price" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.price_ks}</label>
                 <input 
                   required
                   id="product-price"
@@ -236,7 +303,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="product-specs" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Specs</label>
+                <label htmlFor="product-specs" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.specs}</label>
                 <input 
                   id="product-specs"
                   type="text"
@@ -249,7 +316,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
             </div>
 
             <div className="space-y-4">
-              <label htmlFor="product-visual" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 block">Product Visual</label>
+              <label htmlFor="product-visual" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 block">{t.product_visual}</label>
               <div 
                 className={`relative h-48 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 overflow-hidden ${previewUrl ? 'border-blue-500 bg-blue-50/10' : 'border-slate-200 bg-slate-50'}`}
               >
@@ -260,7 +327,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                     <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-400">
                       <ImageIcon size={24} />
                     </div>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Upload Frame</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t.upload_frame}</span>
                   </>
                 )}
                 <input 
@@ -296,7 +363,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
               {isSubmitting ? (
                  <Loader2 size={20} className="animate-spin" />
               ) : (
-                editingId ? 'Update Catalog' : 'Commit to Catalog'
+                editingId ? t.update_catalog : t.commit_to_catalog
               )}
             </button>
           </form>
@@ -307,7 +374,7 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
           <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-8 border-b border-slate-100 flex items-center justify-between">
               <h2 className="font-display font-bold text-xl flex items-center gap-2 uppercase tracking-tight">
-                <Package size={20} className="text-blue-600" /> Active Inventory
+                <Package size={20} className="text-blue-600" /> {t.active_inventory}
               </h2>
             </div>
 
@@ -315,10 +382,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50">
-                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Hardware</th>
-                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Specifications</th>
-                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Valuation</th>
-                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.hardware}</th>
+                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.specifications}</th>
+                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.valuation}</th>
+                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -327,14 +394,14 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
                       <td colSpan={4} className="px-8 py-20 text-center">
                         <div className="flex flex-col items-center gap-4 text-slate-400">
                            <Loader2 size={40} className="animate-spin stroke-1" />
-                           <span className="text-[10px] font-bold uppercase tracking-widest">Synchronizing Nodes...</span>
+                           <span className="text-[10px] font-bold uppercase tracking-widest">{t.syncing_nodes}</span>
                         </div>
                       </td>
                     </tr>
                   ) : products.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-8 py-20 text-center text-slate-400">
-                         <span className="text-[10px] font-bold uppercase tracking-widest">No active assets found.</span>
+                         <span className="text-[10px] font-bold uppercase tracking-widest">{t.no_assets}</span>
                       </td>
                     </tr>
                   ) : (
@@ -386,13 +453,13 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
           <div className="bg-blue-600 rounded-[2rem] p-8 text-white flex items-center justify-between overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:scale-110 transition-transform duration-1000" />
             <div className="relative z-10 space-y-2">
-              <h4 className="font-black text-2xl uppercase tracking-tighter">System Analytics</h4>
-              <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">Cloud Sync: Synchronized</p>
+              <h4 className="font-black text-2xl uppercase tracking-tighter">{t.system_analytics}</h4>
+              <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">{t.cloud_sync}</p>
             </div>
             <div className="relative z-10">
               <div className="flex items-center gap-3">
                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_#4ade80]" />
-                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">Online Nodes</span>
+                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">{t.online_nodes}</span>
               </div>
             </div>
           </div>

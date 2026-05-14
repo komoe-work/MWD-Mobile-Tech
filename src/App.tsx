@@ -18,7 +18,8 @@ import {
   PhoneCall,
   CheckCircle2,
   Loader2,
-  ShieldCheck
+  ShieldCheck,
+  Languages
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import AdminDashboard from './components/AdminDashboard';
@@ -97,9 +98,73 @@ const PRODUCTS: Product[] = [
   },
 ];
 
+// --- Translations ---
+
+const TRANSLATIONS = {
+  mm: {
+    app_title: "MWD မိုဘိုင်း",
+    store: "ဆိုင်",
+    admin: "စီမံခန့်ခွဲသူ",
+    limited_selection: "အကန့်အသတ်ရှိသော ရွေးချယ်မှု",
+    hero_title: "MWD Mobile Tech.",
+    hero_desc: "စွမ်းဆောင်ရည်နှင့် ဒီဇိုင်း ပေါင်းစပ်ထားသော စနစ်တကျ ရွေးချယ်ထားသော အီကိုစနစ်။ Redmi, Meizu နှင့် OPPO တို့၏ နောက်ဆုံးပေါ် နည်းပညာများကို ခံစားကြည့်ပါ။",
+    syncing_inventory: "ပစ္စည်းစာရင်း စစ်ဆေးနေသည်...",
+    inventory_empty: "ဆိုင်တွင် ပစ္စည်း ပြတ်လပ်နေပါသည်။",
+    add_to_cart: "ခြင်းထဲသို့ ထည့်မည်",
+    cart: "ဈေးခြင်း",
+    cart_empty: "ဈေးခြင်းထဲတွင် ဘာမှ မရှိသေးပါ။",
+    subtotal: "စုစုပေါင်း (အကြမ်း)",
+    total: "စုစုပေါင်း",
+    checkout: "အော်ဒါတင်မည်",
+    final_step: "နောက်ဆုံးအဆင့်",
+    order_captured: "အော်ဒါလက်ခံရရှိပါသည်",
+    order_captured_desc: (phone: string) => `သင်၏ နည်းပညာဆိုင်ရာ တောင်းဆိုမှုကို မှတ်တမ်းတင်ပြီးပါပြီ။ ပို့ဆောင်မှု အပြီးသတ်ရန် \n\n${phone}\n\n သို့ ကျွန်ုပ်တို့ ဆက်သွယ်ပေးပါမည်။`,
+    checkout_desc: "အော်ဒါ အချက်အလက်များ ဖြည့်စွက်ပါ",
+    full_name: "နာမည်အပြည့်အစုံ",
+    phone_number: "ဖုန်းနံပတ်",
+    shipping_address: "ပို့ဆောင်ရမည့် လိပ်စာ",
+    placeholder_name: "မောင်မောင်",
+    placeholder_phone: "၀၉ ...",
+    placeholder_address: "လမ်း၊ အိမ်အမှတ်၊ မြို့နယ်",
+    submit_order: "အော်ဒါတင်မည်",
+    all_rights_reserved: "မူပိုင်ခွင့် အားလုံးကို လက်ဝယ်ရှိပါသည်။",
+  },
+  en: {
+    app_title: "MWD MOBILE",
+    store: "Store",
+    admin: "Admin",
+    limited_selection: "Limited Selection",
+    hero_title: "MWD Mobile Tech.",
+    hero_desc: "A curated ecosystem of power and design. Experience the latest from Redmi, Meizu, and OPPO.",
+    syncing_inventory: "Synchronizing Inventory...",
+    inventory_empty: "Inventory is currently depleted.",
+    add_to_cart: "Add to Cart",
+    cart: "Cart",
+    cart_empty: "Your cart is empty",
+    subtotal: "Subtotal",
+    total: "Total",
+    checkout: "Checkout",
+    final_step: "Final Step",
+    order_captured: "Order Captured",
+    order_captured_desc: (phone: string) => `Your technical request has been logged. We will contact you at \n\n${phone}\n\n to finalize delivery.`,
+    checkout_desc: "Complete your order documentation",
+    full_name: "Full Name",
+    phone_number: "Phone Number",
+    shipping_address: "Shipping Address",
+    placeholder_name: "John Doe",
+    placeholder_phone: "+1 (555) 000-0000",
+    placeholder_address: "Street Address, Build, Apartment",
+    submit_order: "Submit Order",
+    all_rights_reserved: "ALL RIGHTS RESERVED.",
+  }
+};
+
 // --- Components ---
 
 export default function App() {
+  const [lang, setLang] = useState<'mm' | 'en'>('mm');
+  const t = TRANSLATIONS[lang];
+
   const [view, setView] = useState<'store' | 'admin'>(
     window.location.pathname === '/admin' ? 'admin' : 'store'
   );
@@ -233,7 +298,29 @@ export default function App() {
   };
 
   if (view === 'admin') {
-    return <AdminDashboard onBack={() => setView('store')} />;
+    return (
+      <div className="flex flex-col min-h-screen">
+        <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-50 px-8 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white">
+              <div className="w-4 h-4 border-2 border-white rounded-full"></div>
+            </div>
+            <h1 className="font-display font-black text-xl tracking-tighter uppercase">{t.app_title}</h1>
+          </div>
+          <button 
+            onClick={() => setLang(lang === 'mm' ? 'en' : 'mm')}
+            className="flex items-center gap-2 p-2 hover:bg-slate-100 rounded-lg transition-colors border border-slate-100 group"
+            aria-label="Switch Language"
+          >
+            <Languages size={20} className="text-slate-600" />
+            <span className="text-[10px] font-black uppercase tracking-widest">{lang === 'mm' ? 'English' : 'မြန်မာ'}</span>
+          </button>
+        </header>
+        <div className="pt-16 flex-1 flex flex-col">
+          <AdminDashboard onBack={() => setView('store')} lang={lang} />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -244,20 +331,30 @@ export default function App() {
           <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white">
             <div className="w-4 h-4 border-2 border-white rounded-full"></div>
           </div>
-          <h1 className="font-display font-black text-xl tracking-tighter uppercase">MWD MOBILE</h1>
+          <h1 className="font-display font-black text-xl tracking-tighter uppercase">{t.app_title}</h1>
         </div>
         
-        <div className="flex items-center gap-8">
-          <nav className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
-            <a href="#" className="text-black border-b-2 border-black pb-1">Store</a>
+        <div className="flex items-center gap-4 md:gap-8">
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-slate-400">
+            <a href="#" className="text-black border-b-2 border-black pb-1">{t.store}</a>
           </nav>
 
-          <button 
-            onClick={() => setIsCartOpen(true)}
-            className="relative p-2 hover:bg-slate-100 rounded-full transition-colors"
-            id="cart-trigger"
-            aria-label="Open shopping cart"
-          >
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setLang(lang === 'mm' ? 'en' : 'mm')}
+              className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 rounded-xl transition-all border border-slate-100 group"
+              aria-label="Switch Language"
+            >
+              <Languages size={18} className="text-slate-400 group-hover:text-blue-600 transition-colors" />
+              <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">{lang === 'mm' ? 'EN' : 'MM'}</span>
+            </button>
+
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2.5 hover:bg-slate-100 rounded-xl transition-all"
+              id="cart-trigger"
+              aria-label="Open shopping cart"
+            >
             <ShoppingCart size={22} className="text-slate-800" />
             {totalItems > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
@@ -266,7 +363,8 @@ export default function App() {
             )}
           </button>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* Hero Section */}
       <section className="px-8 py-16 text-center max-w-4xl mx-auto">
@@ -275,7 +373,7 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           className="inline-block px-3 py-1 bg-slate-200 rounded-full text-[10px] font-bold uppercase tracking-widest mb-6"
         >
-          Limited Selection
+          {t.limited_selection}
         </motion.div>
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -283,7 +381,7 @@ export default function App() {
           transition={{ delay: 0.1 }}
           className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-6"
         >
-          MWD Mobile Tech.
+          {t.hero_title}
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
@@ -291,7 +389,7 @@ export default function App() {
           transition={{ delay: 0.2 }}
           className="text-slate-500 text-lg max-w-xl mx-auto mb-12"
         >
-          A curated ecosystem of power and design. Experience the latest from Redmi, Meizu, and OPPO.
+          {t.hero_desc}
         </motion.p>
       </section>
 
@@ -300,11 +398,11 @@ export default function App() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-4">
             <Loader2 size={40} className="animate-spin stroke-1" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Synchronizing Inventory...</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em]">{t.syncing_inventory}</p>
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
-             <p className="text-xs font-bold uppercase tracking-widest">Inventory is currently depleted.</p>
+             <p className="text-xs font-bold uppercase tracking-widest">{t.inventory_empty}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -341,7 +439,7 @@ export default function App() {
                     onClick={() => addToCart(product)}
                     className="px-6 py-2.5 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
                   >
-                    Add to Cart
+                    {t.add_to_cart}
                   </button>
                 </div>
               </motion.div>
@@ -371,7 +469,7 @@ export default function App() {
             >
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-display font-bold text-2xl flex items-center gap-2">
-                  <ShoppingCart size={24} /> Cart
+                  <ShoppingCart size={24} /> {t.cart}
                 </h3>
                 <button 
                   onClick={() => setIsCartOpen(false)}
@@ -386,7 +484,7 @@ export default function App() {
                 {cart.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-slate-300 gap-4">
                     <ShoppingCart size={80} strokeWidth={1} />
-                    <p className="font-bold uppercase tracking-widest text-xs">Your cart is empty</p>
+                    <p className="font-bold uppercase tracking-widest text-xs">{t.cart_empty}</p>
                   </div>
                 ) : (
                   cart.map(item => (
@@ -416,11 +514,11 @@ export default function App() {
               <div className="p-8 bg-slate-50 border-t border-slate-200 space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
-                    <span>Subtotal</span>
+                    <span>{t.subtotal}</span>
                     <span>{formatPrice(totalPrice)}</span>
                   </div>
                   <div className="flex items-center justify-between font-display">
-                    <span className="font-bold text-lg">Total</span>
+                    <span className="font-bold text-lg">{t.total}</span>
                     <span className="text-3xl font-black text-blue-600">{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
@@ -429,7 +527,7 @@ export default function App() {
                   onClick={() => setIsCheckoutOpen(true)}
                   className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 disabled:opacity-50 shadow-xl shadow-blue-100 transition-all"
                 >
-                  Checkout <ChevronRight size={20} />
+                  {t.checkout} <ChevronRight size={20} />
                 </button>
               </div>
             </motion.div>
@@ -464,15 +562,15 @@ export default function App() {
                   >
                     <CheckCircle2 size={48} />
                   </motion.div>
-                  <h3 className="font-display font-bold text-3xl">Order Captured</h3>
-                  <p className="text-slate-500 text-lg">Your technical request has been logged. We will contact you at <b>{form.phone}</b> to finalize delivery.</p>
+                  <h3 className="font-display font-bold text-3xl">{t.order_captured}</h3>
+                  <p className="text-slate-500 text-lg whitespace-pre-line">{t.order_captured_desc(form.phone)}</p>
                 </div>
               ) : (
                 <>
                   <div className="flex items-center justify-between mb-10">
                     <div>
-                      <h3 className="font-display font-bold text-3xl tracking-tight mb-2">Final Step</h3>
-                      <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Complete your order documentation</p>
+                      <h3 className="font-display font-bold text-3xl tracking-tight mb-2">{t.final_step}</h3>
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">{t.checkout_desc}</p>
                     </div>
                     <button 
                       onClick={() => setIsCheckoutOpen(false)}
@@ -485,7 +583,7 @@ export default function App() {
 
                   <form onSubmit={handleSubmitOrder} className="space-y-6">
                     <div className="space-y-2">
-                      <label htmlFor="customer-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Full Name</label>
+                      <label htmlFor="customer-name" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.full_name}</label>
                       <input 
                         required
                         id="customer-name"
@@ -493,13 +591,13 @@ export default function App() {
                         value={form.name}
                         onChange={e => setForm({ ...form, name: e.target.value })}
                         className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
-                        placeholder="John Doe"
+                        placeholder={t.placeholder_name}
                         autoComplete="name"
                       />
                     </div>
                     <div className="grid grid-cols-1 gap-6">
                       <div className="space-y-2">
-                        <label htmlFor="customer-phone" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Phone Number</label>
+                        <label htmlFor="customer-phone" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.phone_number}</label>
                         <input 
                           required
                           id="customer-phone"
@@ -507,13 +605,13 @@ export default function App() {
                           value={form.phone}
                           onChange={e => setForm({ ...form, phone: e.target.value })}
                           className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
-                          placeholder="+1 (555) 000-0000"
+                          placeholder={t.placeholder_phone}
                           autoComplete="tel"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="customer-address" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Shipping Address</label>
+                      <label htmlFor="customer-address" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.shipping_address}</label>
                       <textarea 
                         required
                         id="customer-address"
@@ -521,7 +619,7 @@ export default function App() {
                         value={form.address}
                         onChange={e => setForm({ ...form, address: e.target.value })}
                         className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm resize-none"
-                        placeholder="Street Address, Build, Apartment"
+                        placeholder={t.placeholder_address}
                         autoComplete="street-address"
                       />
                     </div>
@@ -536,7 +634,7 @@ export default function App() {
                           <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                           <>
-                            Submit Order ({formatPrice(totalPrice)}) <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                            {t.submit_order} ({formatPrice(totalPrice)}) <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                           </>
                         )}
                       </button>
@@ -555,18 +653,18 @@ export default function App() {
             <div className="w-6 h-6 bg-black rounded flex items-center justify-center text-white">
               <div className="w-3 h-3 border border-white rounded-full"></div>
             </div>
-            <span className="font-display font-black text-sm tracking-widest uppercase">MWD MOBILE</span>
+            <span className="font-display font-black text-sm tracking-widest uppercase">{t.app_title}</span>
           </div>
           <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-            <a href="#" className="hover:text-black transition-colors">Store</a>
+            <a href="#" className="hover:text-black transition-colors">{t.store}</a>
             <button 
               onClick={() => setView('admin')}
               className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"
             >
-              <ShieldCheck size={12} /> Admin
+              <ShieldCheck size={12} /> {t.admin}
             </button>
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">&copy; 2024 MWD MOBILE INC. ALL RIGHTS RESERVED.</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">&copy; 2024 {t.app_title} INC. {t.all_rights_reserved}</p>
         </div>
       </footer>
     </div>
