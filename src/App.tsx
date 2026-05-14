@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import AdminDashboard from './components/AdminDashboard';
+import POSSystem from './components/POSSystem';
 
 // --- Types ---
 
@@ -33,6 +34,7 @@ interface Product {
   price: number;
   image: string;
   brand: string;
+  stock_quantity?: number;
 }
 
 interface CartItem extends Product {
@@ -105,6 +107,7 @@ const TRANSLATIONS = {
     app_title: "MWD မိုဘိုင်း",
     store: "ဆိုင်",
     admin: "စီမံခန့်ခွဲသူ",
+    pos: "အရောင်းစနစ် (POS)",
     limited_selection: "အကန့်အသတ်ရှိသော ရွေးချယ်မှု",
     hero_title: "MWD Mobile Tech.",
     hero_desc: "စွမ်းဆောင်ရည်နှင့် ဒီဇိုင်း ပေါင်းစပ်ထားသော စနစ်တကျ ရွေးချယ်ထားသော အီကိုစနစ်။ Redmi, Meizu နှင့် OPPO တို့၏ နောက်ဆုံးပေါ် နည်းပညာများကို ခံစားကြည့်ပါ။",
@@ -133,6 +136,7 @@ const TRANSLATIONS = {
     app_title: "MWD MOBILE",
     store: "Store",
     admin: "Admin",
+    pos: "POS System",
     limited_selection: "Limited Selection",
     hero_title: "MWD Mobile Tech.",
     hero_desc: "A curated ecosystem of power and design. Experience the latest from Redmi, Meizu, and OPPO.",
@@ -165,8 +169,9 @@ export default function App() {
   const [lang, setLang] = useState<'mm' | 'en'>('mm');
   const t = TRANSLATIONS[lang];
 
-  const [view, setView] = useState<'store' | 'admin'>(
-    window.location.pathname === '/admin' ? 'admin' : 'store'
+  const [view, setView] = useState<'store' | 'admin' | 'pos'>(
+    window.location.pathname === '/admin' ? 'admin' : 
+    window.location.pathname === '/pos' ? 'pos' : 'store'
   );
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -296,6 +301,10 @@ export default function App() {
       setIsSubmitting(false);
     }
   };
+
+  if (view === 'pos') {
+    return <POSSystem onBack={() => setView('store')} />;
+  }
 
   if (view === 'admin') {
     return (
@@ -662,6 +671,12 @@ export default function App() {
               className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"
             >
               <ShieldCheck size={12} /> {t.admin}
+            </button>
+            <button 
+              onClick={() => setView('pos')}
+              className="hover:text-black transition-colors uppercase tracking-widest flex items-center gap-1"
+            >
+              <CreditCard size={12} /> {t.pos}
             </button>
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">&copy; 2024 {t.app_title} INC. {t.all_rights_reserved}</p>

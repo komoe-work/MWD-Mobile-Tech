@@ -21,6 +21,7 @@ async function startServer() {
       specs: '8GB RAM + 256GB Storage',
       price: 1150000,
       brand: 'Redmi',
+      stock_quantity: 15,
       image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -29,6 +30,7 @@ async function startServer() {
       specs: '12GB RAM + 512GB Storage',
       price: 1850000,
       brand: 'Meizu',
+      stock_quantity: 8,
       image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -37,6 +39,7 @@ async function startServer() {
       specs: '8GB RAM + 256GB Storage',
       price: 1450000,
       brand: 'OPPO',
+      stock_quantity: 12,
       image: 'https://images.unsplash.com/photo-1610940882244-5966236ca6d5?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -45,6 +48,7 @@ async function startServer() {
       specs: '6GB RAM + 128GB Storage',
       price: 750000,
       brand: 'Redmi',
+      stock_quantity: 25,
       image: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -53,6 +57,7 @@ async function startServer() {
       specs: '16GB RAM + 1TB Storage',
       price: 2650000,
       brand: 'Meizu',
+      stock_quantity: 5,
       image: 'https://images.unsplash.com/photo-1592890288564-76628a30a657?auto=format&fit=crop&q=80&w=400',
     },
     {
@@ -61,9 +66,12 @@ async function startServer() {
       specs: '8GB RAM + 128GB Storage',
       price: 850000,
       brand: 'OPPO',
+      stock_quantity: 10,
       image: 'https://images.unsplash.com/photo-1556656793-062ff98782fe?auto=format&fit=crop&q=80&w=400',
     },
   ];
+
+  let sales: any[] = [];
 
   // Configure Multer for image uploads
   // Note: In this environment, we'll store images as base64 in the memory store 
@@ -75,8 +83,33 @@ async function startServer() {
     res.json(products);
   });
 
+  app.post("/api/admin/sale", (req, res) => {
+    const { cart, customer, discount, paymentMethod, total } = req.body;
+    
+    // Process sale and update inventory
+    cart.forEach((item: any) => {
+      const productIndex = products.findIndex(p => p.id === item.id);
+      if (productIndex !== -1) {
+        products[productIndex].stock_quantity = Math.max(0, products[productIndex].stock_quantity - item.quantity);
+      }
+    });
+
+    const newSale = {
+      id: `SALE-${Date.now()}`,
+      date: new Date(),
+      items: cart,
+      customer,
+      discount,
+      paymentMethod,
+      total,
+    };
+
+    sales.push(newSale);
+    res.status(201).json({ message: "Sale processed successfully", sale: newSale });
+  });
+
   app.post("/api/admin/inventory", upload.single("image"), (req, res) => {
-    const { name, brand, price, specs } = req.body;
+    const { name, brand, price, specs, stock_quantity } = req.body;
     let imageUrl = "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400"; // Fallback
 
     if (req.file) {
@@ -91,6 +124,7 @@ async function startServer() {
       brand,
       price: parseFloat(price),
       specs: specs || "Latest Generation",
+      stock_quantity: parseInt(stock_quantity || "0"),
       image: imageUrl,
     };
 
@@ -106,7 +140,7 @@ async function startServer() {
 
   app.put("/api/phone/:id", upload.single("image"), (req, res) => {
     const { id } = req.params;
-    const { name, brand, price, specs } = req.body;
+    const { name, brand, price, specs, stock_quantity } = req.body;
     const index = products.findIndex(p => p.id === id);
 
     if (index === -1) {
@@ -125,6 +159,7 @@ async function startServer() {
       brand: brand || products[index].brand,
       price: price ? parseFloat(price) : products[index].price,
       specs: specs || products[index].specs,
+      stock_quantity: stock_quantity ? parseInt(stock_quantity) : products[index].stock_quantity,
       image: imageUrl
     };
 

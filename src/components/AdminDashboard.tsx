@@ -21,6 +21,7 @@ interface Product {
   price: number;
   image: string;
   brand: string;
+  stock_quantity: number;
 }
 
 interface AdminDashboardProps {
@@ -49,6 +50,7 @@ const TRANSLATIONS = {
     hardware: "ပစ္စည်းအမျိုးအမည်",
     specifications: "အသေးစိတ် အချက်အလက်များ",
     valuation: "ဈေးနှုန်း",
+    stock: "လက်ကျန်",
     actions: "လုပ်ဆောင်ချက်များ",
     syncing_nodes: "စနစ်များ ချိတ်ဆက်နေသည်...",
     no_assets: "မည်သည့် ပစ္စည်းမှ မရှိသေးပါ။",
@@ -80,6 +82,7 @@ const TRANSLATIONS = {
     hardware: "Hardware",
     specifications: "Specifications",
     valuation: "Valuation",
+    stock: "Stock",
     actions: "Actions",
     syncing_nodes: "Synchronizing Nodes...",
     no_assets: "No active assets found.",
@@ -105,7 +108,8 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
     name: '',
     brand: '',
     price: '',
-    specs: ''
+    specs: '',
+    stock_quantity: ''
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -145,7 +149,8 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
       name: product.name,
       brand: product.brand,
       price: product.price.toString(),
-      specs: product.specs
+      specs: product.specs,
+      stock_quantity: product.stock_quantity.toString()
     });
     setPreviewUrl(product.image);
     // Scroll to form
@@ -154,7 +159,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', brand: '', price: '', specs: '' });
+    setFormData({ name: '', brand: '', price: '', specs: '', stock_quantity: '' });
     setImageFile(null);
     setPreviewUrl(null);
   };
@@ -169,6 +174,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
     data.append('brand', formData.brand);
     data.append('price', formData.price);
     data.append('specs', formData.specs);
+    data.append('stock_quantity', formData.stock_quantity);
     if (imageFile) {
       data.append('image', imageFile);
     }
@@ -289,7 +295,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label htmlFor="product-price" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.price_ks}</label>
                 <input 
@@ -303,6 +309,18 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
                 />
               </div>
               <div className="space-y-2">
+                <label htmlFor="product-stock" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.stock || 'Stock'}</label>
+                <input 
+                  required
+                  id="product-stock"
+                  type="number"
+                  placeholder="10"
+                  value={formData.stock_quantity}
+                  onChange={e => setFormData({ ...formData, stock_quantity: e.target.value })}
+                  className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all font-medium text-sm"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
                 <label htmlFor="product-specs" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{t.specs}</label>
                 <input 
                   id="product-specs"
@@ -384,6 +402,7 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
                   <tr className="bg-slate-50/50">
                     <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.hardware}</th>
                     <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.specifications}</th>
+                    <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.stock || 'Stock'}</th>
                     <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.valuation}</th>
                     <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">{t.actions}</th>
                   </tr>
@@ -420,6 +439,11 @@ export default function AdminDashboard({ onBack, lang }: AdminDashboardProps) {
                         </td>
                         <td className="px-8 py-5">
                            <span className="text-xs font-medium text-slate-600">{product.specs}</span>
+                        </td>
+                        <td className="px-8 py-5">
+                           <span className={`text-xs font-bold ${product.stock_quantity <= 5 ? 'text-red-500' : 'text-slate-600'}`}>
+                             {product.stock_quantity}
+                           </span>
                         </td>
                         <td className="px-8 py-5">
                            <span className="font-bold text-slate-900">{formatPrice(product.price)}</span>
